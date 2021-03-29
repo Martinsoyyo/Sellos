@@ -76,7 +76,7 @@ void Trainer<NET>::Move_Tensor_To_GPU() {
         cout << "Training on CPU." << endl;
         m_device = torch::kCPU;
     }
-
+    
     m_net->to(m_device);
     m_image.to(m_device);
     m_target.to(m_device);
@@ -95,6 +95,7 @@ void Trainer<NET>::Save_Model(const float& RES) {
     for (auto N : m_parser.m_linear_layer_conf) str += to_string(N) + " ";
     str += ")" + to_string(RES) + "%.pt";
 
+    m_net->to(torch::kCPU);
     torch::load(m_net, "model.pt");
     torch::save(m_net, str);
 }
