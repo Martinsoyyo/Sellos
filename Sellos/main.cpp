@@ -16,7 +16,9 @@ int main(int argc, char* argv[]) {
             parser.m_conv_layer_conf,
             parser.m_linear_layer_conf,
             parser.m_drop_out,
-            parser.m_batch_norm
+            parser.m_batch_norm,
+            parser.m_output_channel,
+            parser.m_input_channel
         );
         cout << net << endl;
 

@@ -46,6 +46,8 @@ void Trainer<NET>::Load_Tensor_From_File() {
         cout << "Cargando " << TRG_ADD << endl;
         torch::load(m_image, IMG_ADD);
         torch::load(m_target, TRG_ADD);
+
+        if (m_image.sizes().size() == 3) m_image.unsqueeze_(1);
     }
     catch (exception& e) {
         cerr << "Trainer::Trainer() - torch::load" << endl << e.what();
@@ -106,8 +108,7 @@ float Trainer<NET>::Test(const torch::Tensor& __IMAGE, const torch::Tensor& __TA
     torch::NoGradGuard no_grad;
     m_net->eval();
 
-    int32_t correct = 0;
-    for (auto idx = 0; idx < IMAGE.size(); idx++) {
+    int32_t correct = 0;    for (auto idx = 0; idx < IMAGE.size(); idx++) {
 
         auto output = m_net->forward(IMAGE[idx].to(m_device).to(at::kFloat).div_(255));
         auto pred = output.argmax(1);
@@ -164,5 +165,6 @@ void Trainer<NET>::Run() {
         }
     }
 
+    std::printf("Best Accuracy: %.3f \n", best_result);
     Save_Model(best_result); // Trae de disco la mejor configuracion encontrada y la vuelve a grabar con la configuracion en el nombre de la red.
 };
