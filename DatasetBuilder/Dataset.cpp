@@ -25,8 +25,11 @@ auto Dataset::get_image_from_directory(
     const std::string& PATH,
     const std::string& EXT)
 {
-    std::vector<torch::Tensor> IMG;
+    std::string THUMBNAILS_DIRECTORY = PATH + DSEP + std::to_string(CmdLineOpt::image_size) + "x" + std::to_string(CmdLineOpt::image_size) + " IMG";
+    _mkdir(THUMBNAILS_DIRECTORY.c_str());
+    size_t count = 0;
 
+    std::vector<torch::Tensor> IMG;
     auto FILES = get_file_or_directory_structure(FILE_ATTRIBUTE_ARCHIVE, PATH, EXT);
     for (const auto& filename : FILES) {
         /*
@@ -44,17 +47,41 @@ auto Dataset::get_image_from_directory(
 
         IMG.push_back(m_images);
         */
-        cv::Mat aux = cv::imread(PATH + DSEP + filename);
-        std::vector<cv::Mat> rgb;
-        cv::resize(aux, aux, cv::Size(CmdLineOpt::image_size, CmdLineOpt::image_size));
-        cv::split(aux, rgb);
-        //---------------------------------------------------------------------
-        auto m_images = torch::zeros({ 3,CmdLineOpt::image_size,CmdLineOpt::image_size }, torch::kByte);
-        m_images[0] = torch::from_blob(rgb[0].data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
-        m_images[1] = torch::from_blob(rgb[1].data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
-        m_images[2] = torch::from_blob(rgb[2].data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
 
-        IMG.push_back(m_images[0]); // Como estoy entrenando con escala de grises, me quedo con un solo canal.
+        cv::Mat src = cv::imread(PATH + DSEP + filename);
+        cv::cvtColor(src, src, cv::COLOR_BGR2GRAY);
+        cv::resize(src, src, cv::Size(CmdLineOpt::image_size, CmdLineOpt::image_size));
+
+        if (CmdLineOpt::augmentation == true) {
+            for (int k = 0; k < 2; k++) {
+                for (int j = 0; j < 2; j++) {
+                    for (auto i = 0; i < 4; i++) {
+                        auto m_images = torch::from_blob(src.data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
+                        cv::imwrite(THUMBNAILS_DIRECTORY + DSEP + std::to_string(count++) + ".jpg", src); //graba jpgs al disco
+                        IMG.push_back(m_images.clone());
+
+                        cv::rotate(src, src, 0);
+                    }
+                    cv::flip(src, src, 0); //flip horizontal
+                }
+                cv::flip(src, src, 1); //flip vertical
+            }
+             
+        }
+        else {
+            auto m_images = torch::from_blob(src.data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
+            cv::imwrite(THUMBNAILS_DIRECTORY + DSEP + std::to_string(count++) + ".jpg", src);
+            IMG.push_back(m_images.clone());
+        }
+
+        //checkeo que este guardando lo que dice..
+        /*cv::Mat cv_mat = cv::Mat(CmdLineOpt::image_size, CmdLineOpt::image_size, CV_8U);
+        for (int i = 0; i < 8; i++) {
+            //std::cout << IMG[i] << std::endl;
+            std::memcpy(cv_mat.data, IMG[i].data_ptr(), 64 * 64);
+            std::cout << "";
+        };
+        */
     }
 
     return torch::stack(torch::TensorList(IMG), 0);

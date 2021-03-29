@@ -3,6 +3,7 @@
 
 namespace CmdLineOpt {
 
+    bool augmentation           = false;
     bool verbose                = false;
     bool overwrite_dataset      = false;
     int image_size              = 64;;
@@ -23,6 +24,7 @@ namespace CmdLineOpt {
                 .allow_unrecognised_options()
                 .add_options()
                 ("h,help", "Print help")
+                ("a,augmentation", "Uso de rotacion x4 y flip x2 de las imagenes dando 8x de la muestra", cxxopts::value<bool>(augmentation))
                 ("s,size", "Tamano de las imagenes que se guardan en el tensor", cxxopts::value<int>(image_size))
                 ("p,path", "Direccion donde se encuentran las IMAGENES", cxxopts::value<std::string>(dataset_path))
                 ("prefix", "Prefijo para los nombres de los archivos de dataset '*.tensor' (ej. 'PREFIJO_TRAIN_IMAGES.tensor'", cxxopts::value<std::string>(dataset_prefix))
@@ -31,6 +33,7 @@ namespace CmdLineOpt {
 
             auto result = options.parse(argc, argv);
 
+            if (result.count("augmentation")) std::cout << "Augmentation. <ON>" << std::endl;
             if (result.count("verbose")) std::cout << "Informacion detallada mientras se ejecuta. <ON>" << std::endl;
             if (result.count("path")) std::cout << "Direccion donde busca Imagenes. <" << dataset_path << ">" << std::endl;
             if (result.count("size")) std::cout << "Las Imagenes del tensor tienen dimension <" << image_size << "," << image_size << ">" << std::endl;
