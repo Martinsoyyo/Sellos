@@ -123,8 +123,8 @@ struct VGGImpl : torch::nn::SequentialImpl {
     size_t Size(size_t IMAGESIZE, const vector<size_t>& CONV_LAYER) const {
         // calculo cuantos elemtentos exiten en la ultima convolucion, para poder armar
         // la parte del clasificador.
-        auto count = 0;
-        auto lastfilter = 0;
+        size_t count = 0;
+        size_t lastfilter = 0;
         for (auto N : CONV_LAYER)
             if (N == 0) count++;
             else lastfilter = N;
