@@ -6,23 +6,23 @@
 template<class NET>
 class Trainer {
 public:
-	Trainer(NET& OBJ,const string& NET_CONFIG);
+    Trainer(NET& OBJ, const string& NET_CONFIG);
 
-	void Load_Tensor_From_File();
-	void Move_Tensor_To_GPU();
+    void Load_Tensor_From_File();
+    void Move_Tensor_To_GPU();
     void Separate_Tensor_For_Train_And_Test();
-    void Save_Model(const float&);
+    void Save_Model_To_CPU(const float&);
     void Confusion_Matrix();
-	void Run();
+    void Run();
 
     void Train(size_t epoch, torch::optim::Optimizer& optimizer);
     float Test(const torch::Tensor& IMAGE, const torch::Tensor& TARGET);
 
 private:
-	torch::Device m_device;
+    torch::Device m_device;
     // Tenosres donde se encuentran los datos aprocesar.
-	torch::Tensor m_image;
-	torch::Tensor m_target;
+    torch::Tensor m_image;
+    torch::Tensor m_target;
 
     // Referencias que apuntan a la zona de testeo y entrenamiento.
     torch::Tensor m_image_train;
@@ -58,10 +58,10 @@ void Trainer<NET>::Load_Tensor_From_File() {
 
 template<class NET>
 void Trainer<NET>::Separate_Tensor_For_Train_And_Test() {
-    const auto N = int64_t(m_parser.m_percent_to_train*m_image.size(0));
+    const auto N = int64_t(m_parser.m_percent_to_train * m_image.size(0));
 
     m_image_train = m_image.slice(0, 0, N);
-    m_image_test  = m_image.slice(0, N + 1);
+    m_image_test = m_image.slice(0, N + 1);
     m_target_train = m_target.slice(0, 0, N);
     m_target_test = m_target.slice(0, N + 1);
 
@@ -77,20 +77,21 @@ void Trainer<NET>::Move_Tensor_To_GPU() {
         cout << "Training on CPU." << endl;
         m_device = torch::kCPU;
     }
-    
+
     m_net->to(m_device);
     m_image.to(m_device);
     m_target.to(m_device);
 };
 
 template<class NET>
-void Trainer<NET>::Save_Model(const float& RES) {
-    Confusion_Matrix();
+void Trainer<NET>::Save_Model_To_CPU(const float& RES) {
+    torch::load(m_net, "model.pt");
+    m_net->to(torch::kCPU, true);
 
     string str =
         m_parser.m_model_type + "," +
         "B " + (m_parser.m_batch_norm ? "1" : "0") + "," +
-        "D "  + to_string(m_parser.m_drop_out) + ",";
+        "D " + to_string(m_parser.m_drop_out) + ",";
 
     str += "CL(";
     for (auto N : m_parser.m_conv_layer_conf) str += to_string(N) + " ";
@@ -98,21 +99,19 @@ void Trainer<NET>::Save_Model(const float& RES) {
     for (auto N : m_parser.m_linear_layer_conf) str += to_string(N) + " ";
     str += ")" + to_string(RES) + "%.pt";
 
-    m_net->to(torch::kCPU);
-    torch::load(m_net, "model.pt");
     torch::save(m_net, str);
 }
 
 template<class NET>
 float Trainer<NET>::Test(const torch::Tensor& __IMAGE, const torch::Tensor& __TARGET)
 {
-    auto IMAGE  = __IMAGE.split(m_parser.m_batch_size);
+    auto IMAGE = __IMAGE.split(m_parser.m_batch_size);
     auto TARGET = __TARGET.split(m_parser.m_batch_size);
 
     torch::NoGradGuard no_grad;
     m_net->eval();
 
-    int32_t correct = 0;    
+    int32_t correct = 0;
     for (auto idx = 0; idx < IMAGE.size(); idx++) {
 
         auto output = m_net->forward(IMAGE[idx].to(m_device).to(at::kFloat).div_(255));
@@ -146,8 +145,11 @@ void Trainer<NET>::Train(size_t epoch, torch::optim::Optimizer& optimizer)
 template<class NET>
 void Trainer<NET>::Confusion_Matrix()
 {
-    auto IMAGE = m_image_test.split(m_parser.m_batch_size);
-    auto TARGET = m_target_test.split(m_parser.m_batch_size);
+    torch::load(m_net, "model.pt");
+    m_net->to(m_device, true);
+
+    auto IMAGE = m_image_test.to(m_device).split(m_parser.m_batch_size);
+    auto TARGET = m_target_test.to(m_device).split(m_parser.m_batch_size);
 
     torch::NoGradGuard no_grad;
     m_net->eval();
@@ -201,11 +203,12 @@ void Trainer<NET>::Run() {
         std::printf("Train set: Accuracy: %.3f  ,  Test set: Accuracy: %.3f \n", Test(m_image_train, m_target_train), result);
 
         if (result > best_result) {
-            torch::save(m_net,"model.pt");
+            torch::save(m_net, "model.pt");
             best_result = result;
         }
     }
 
     std::printf("Best Accuracy: %.3f \n", best_result);
-    Save_Model(best_result); // Trae de disco la mejor configuracion encontrada y la vuelve a grabar con la configuracion en el nombre de la red.
+    Confusion_Matrix();
+    Save_Model_To_CPU(best_result); // Trae de disco la mejor configuracion encontrada y la vuelve a grabar con la configuracion en el nombre de la red.
 };

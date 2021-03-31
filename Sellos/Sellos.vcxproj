@@ -79,9 +79,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>C:\OpenCV\build\include;C:\libtorch-win-shared-with-deps-debug-1.8.0\libtorch\include\torch\csrc\api\include;C:\libtorch-win-shared-with-deps-debug-1.8.0\libtorch\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>C:\OpenCV\build\include;C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\include\torch\csrc\api\include;C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

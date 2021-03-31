@@ -72,15 +72,15 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\OpenCV\build\include;C:\Repositories\libtorch\include;C:\Repositories\libtorch\include\torch\csrc\api\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\OpenCV\build\x64\vc15\lib;C:\Repositories\libtorch\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\lib;C:\OpenCV\build\include;C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\include\torch\csrc\api\include;C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <LibraryPath>C:\opencv\build\x64\vc14\lib;C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\opencv\build\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
+    <IncludePath>C:\OpenCV\build\include;C:\libtorch-win-shared-with-deps-debug-1.8.0\libtorch\include\torch\csrc\api\include;C:\libtorch-win-shared-with-deps-debug-1.8.0\libtorch\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);</IncludePath>
     <LibraryPath>C:\OpenCV\build\x64\vc15\lib;C:\libtorch-win-shared-with-deps-debug-1.8.0\libtorch\lib;$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -97,14 +97,15 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <PreprocessToFile>false</PreprocessToFile>
-      <AdditionalIncludeDirectories>$(SolutionDir)CVNet_DatasetBuilder</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\opencv\build\include;C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_world420.lib;c10.lib;torch.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_world451.lib;c10.lib;torch_cpu.lib;torch.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\opencv\build\x64\vc15\lib;C:\libtorch-win-shared-with-deps-1.8.1+cpu\libtorch\lib;</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
