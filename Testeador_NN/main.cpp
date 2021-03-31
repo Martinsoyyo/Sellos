@@ -6,10 +6,30 @@
 #define NET_ADDRESS "C:\\Users\\mmpel\\source\\repos\\Sellos\\Testeador_NN"
 #define TENSOR_ADDRESS "C:\\Sellos\\Prueba_Superior"
 #define TRAIN_PERCENTAGE 0.75f
-#define IMAGE_SIZE 64
 #define BATCH_SIZE 128
 
+#define IMAGE_SIZE 64
+std::string  IMAGE_NAME = "VBME_C3_pza=002-pos=2-img=0072-01303ms(3).jpg";
+std::string  IMAGE_PATH = "C:\\Sellos\\Prueba_Superior\\1_roto";
 
+
+template <typename NET>
+size_t Test_Image(NET& m_net, string IMAGE_NAME, string IMAGE_PATH) {
+    cv::Mat src = cv::imread(IMAGE_PATH + DSEP + IMAGE_NAME);
+    cv::cvtColor(src, src, cv::COLOR_BGR2GRAY);
+    cv::resize(src, src, cv::Size(IMAGE_SIZE, IMAGE_SIZE));
+
+    auto src_tensor = torch::from_blob(src.data, { 1, 1, IMAGE_SIZE, IMAGE_SIZE }, torch::kByte);
+    torch::Tensor output = m_net->forward(src_tensor.to(at::kFloat).div_(255));
+    torch::Tensor pred = output.argmax(1);
+
+    cout << output << endl;
+    cout << pred << endl;
+
+    return(pred.item<int64_t>());
+}
+
+/*
 template <typename NET>
 void Testing(NET& m_net)
 {
@@ -57,13 +77,14 @@ void Testing(NET& m_net)
     cout << "FALSO_POSITIVO: " << count[2] << endl;
     cout << "FALSO_NEGATIVO: " << count[3] << endl;
 }
+*/
 
 
 int main(int argc, char* argv[]) {
     // Tomando de ejemplo que el modelo se llama como a continuacion, la definicion de la red es asi..
-    // VGG,B 1,D 0.000000,CL(8 8 8 0 8 8 0 8 0 8 0 8 0 ),LL(32 )0.997644%
-    vector<size_t> CL = { 8,4,8,0,8,8,0,8,0,8,0,8,0 };
-    vector<size_t> LL = { 32 };
+    // VGG,B 1,D 0.000000,CL(6 6 6 0 6 6 0 6 0 6 0 ),LL(12 12 )0.999411%.pt
+    vector<size_t> CL = { 6,6,6,0,6,6,0,6,0,6,0 };
+    vector<size_t> LL = { 12,12  };
     VGG net(
         64,/*IMAGE SIZE*/
         CL,
@@ -79,5 +100,5 @@ int main(int argc, char* argv[]) {
     torch::load(net, NET_ADDRESS + string(DSEP) + "model.pt");
     cout << net;
 
-    Testing(net);
+    cout << Test_Image(net, IMAGE_NAME, IMAGE_PATH);
 };
