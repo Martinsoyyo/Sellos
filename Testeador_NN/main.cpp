@@ -29,7 +29,7 @@ size_t Test_Image(NET& m_net, string IMAGE_NAME, string IMAGE_PATH) {
     return(pred.item<int64_t>());
 }
 
-/*
+
 template <typename NET>
 void Testing(NET& m_net)
 {
@@ -77,7 +77,7 @@ void Testing(NET& m_net)
     cout << "FALSO_POSITIVO: " << count[2] << endl;
     cout << "FALSO_NEGATIVO: " << count[3] << endl;
 }
-*/
+
 
 
 int main(int argc, char* argv[]) {
@@ -100,5 +100,6 @@ int main(int argc, char* argv[]) {
     torch::load(net, NET_ADDRESS + string(DSEP) + "model.pt");
     cout << net;
 
-    cout << Test_Image(net, IMAGE_NAME, IMAGE_PATH);
+    Testing(net);
+   // cout << Test_Image(net, IMAGE_NAME, IMAGE_PATH);
 };
