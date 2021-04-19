@@ -127,14 +127,18 @@ template<class NET>
 void Trainer<NET>::Train(size_t epoch, torch::optim::Optimizer& optimizer)
 {
     m_net->train();
-
     auto IMAGE = m_image_train.split(m_parser.m_batch_size);
     auto TARGET = m_target_train.split(m_parser.m_batch_size);
+
+    //torch::Tensor weigth = torch::zeros({ 1,2 }).to(m_device);
+    //weigth[0][0] = 1;
+    //weigth[0][1] = 2;
 
     for (auto idx = 0; idx < IMAGE.size(); idx++) {
         optimizer.zero_grad();
         auto output = m_net->forward(IMAGE[idx].to(m_device).to(at::kFloat).div_(255));
-        auto loss = torch::nll_loss(output, TARGET[idx].to(m_device).to(at::kLong));
+
+        auto loss = torch::nll_loss(output, TARGET[idx].to(m_device).to(at::kLong)/*,weigth*/);
         loss.backward();
         optimizer.step();
 

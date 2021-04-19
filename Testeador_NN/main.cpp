@@ -1,6 +1,5 @@
 #include "pch.h"
 #include "Redes.h"
-#include "Tester.h"
 
 #define DSEP "\\"
 #define NET_ADDRESS "C:\\Users\\mmpel\\source\\repos\\Sellos\\Testeador_NN"
@@ -9,8 +8,11 @@
 #define BATCH_SIZE 128
 
 #define IMAGE_SIZE 64
-std::string  IMAGE_NAME = "VBME_C3_pza=002-pos=2-img=0072-01303ms(3).jpg";
-std::string  IMAGE_PATH = "C:\\Sellos\\Prueba_Superior\\1_roto";
+string  IMAGE_PATH = "C:\\Sellos\\Prueba_Superior\\0_sano";
+string  IMAGE_NAME = "KQHT_C3_pza=007-pos=2-img=0071-01272ms(3).jpg";
+
+string  IMAGE_PATH1 = "C:\\Sellos\\Prueba_Superior\\1_roto";
+string  IMAGE_NAME1 = "VBME_C3_pza=002-pos=2-img=0072-01303ms(3).jpg";
 
 
 template <typename NET>
@@ -21,7 +23,7 @@ size_t Test_Image(NET& m_net, string IMAGE_NAME, string IMAGE_PATH) {
 
     auto src_tensor = torch::from_blob(src.data, { 1, 1, IMAGE_SIZE, IMAGE_SIZE }, torch::kByte);
     torch::Tensor output = m_net->forward(src_tensor.to(at::kFloat).div_(255));
-    torch::Tensor pred = output.argmax(1);
+    torch::Tensor pred = output.argmax();
 
     cout << output << endl;
     cout << pred << endl;
@@ -59,6 +61,10 @@ void Testing(NET& m_net)
         torch::Tensor output = m_net->forward(IMAGE[idx].to(at::kFloat).div_(255));
         torch::Tensor pred = output.argmax(1);
 
+        //cout << "output " << output << endl;
+        //cout << "pred" << pred << endl;
+        //cout << "images" << TARGET[idx] << endl;
+
         torch::Tensor OK_1_1 = pred.logical_and(TARGET[idx]);
         torch::Tensor OK_0_0 = pred.logical_or(TARGET[idx]).logical_not();
         torch::Tensor FALSO_POSITIVO = pred.logical_and(TARGET[idx].logical_not());
@@ -81,15 +87,16 @@ void Testing(NET& m_net)
 
 
 int main(int argc, char* argv[]) {
+
     // Tomando de ejemplo que el modelo se llama como a continuacion, la definicion de la red es asi..
     // VGG,B 1,D 0.000000,CL(6 6 6 0 6 6 0 6 0 6 0 ),LL(12 12 )0.999411%.pt
-    vector<size_t> CL = { 6,6,6,0,6,6,0,6,0,6,0 };
-    vector<size_t> LL = { 12,12  };
+    vector<size_t> CL = { 8,0,8,0,8,0,8,0 };
+    vector<size_t> LL = { 8,8 };
     VGG net(
         64,/*IMAGE SIZE*/
         CL,
         LL,
-        0, /* DROP OUT*/
+        0.005, /* DROP OUT*/
         1, /* BATCH NORM*/
         2, /* CHANNEL OUT*/
         1  /* CHANNEL IN*/
@@ -100,6 +107,13 @@ int main(int argc, char* argv[]) {
     torch::load(net, NET_ADDRESS + string(DSEP) + "model.pt");
     cout << net;
 
-    Testing(net);
-   // cout << Test_Image(net, IMAGE_NAME, IMAGE_PATH);
-};
+   Testing(net);
+
+
+   cout << "sano." << endl;
+   Test_Image(net, IMAGE_NAME, IMAGE_PATH);
+
+   cout << "roto." << endl;
+   Test_Image(net, IMAGE_NAME1, IMAGE_PATH1);
+   
+   };

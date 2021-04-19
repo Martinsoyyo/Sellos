@@ -23,7 +23,8 @@ struct NetImpl : torch::nn::SequentialImpl
         // Layer 3
         push_back(Conv2d(Conv2dOptions(32, 32, 3).stride(1).padding(1).bias(false)));
         push_back(MaxPool2d(2));
-        push_back(Functional(torch::relu));
+        push_back(ReLU6());
+        //push_back(Functional(torch::relu));
         // Layer 4
         push_back(Flatten());
         push_back(Linear(128, 256));
