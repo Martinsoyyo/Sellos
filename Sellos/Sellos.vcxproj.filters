@@ -40,7 +40,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="Config.txt" />
-    <Text Include="CMakeLists.txt" />
+    <Text Include="CONFIG.txt" />
+    <Text Include="___CMakeLists.txt" />
   </ItemGroup>
 </Project>

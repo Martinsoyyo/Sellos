@@ -99,7 +99,7 @@ void Trainer<NET>::Save_Model_To_CPU(const float& RES) {
     for (auto N : m_parser.m_linear_layer_conf) str += to_string(N) + " ";
     str += ")" + to_string(RES) + "%.pt";
 
-    torch::save(m_net, str);
+    torch::save(m_net-> , str);
 }
 
 template<class NET>

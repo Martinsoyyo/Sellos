@@ -48,7 +48,7 @@ struct CV_DROP_BN_RELUImpl : torch::nn::SequentialImpl {
     {
         push_back(Conv2d(Conv2dOptions(_IN, _OUT, FILTER_SIZE).stride(1).padding(1).bias(false)));
         if (DROP_RATE > 0 && is_training()) push_back(Dropout(DROP_RATE));
-        if (BATCHNORM > 0)                  push_back(BatchNorm2d(_OUT));
+        if (BATCHNORM > 0 && is_training()) push_back(BatchNorm2d(_OUT));
         push_back(Functional(torch::relu));
     };
 
@@ -136,3 +136,4 @@ struct VGGImpl : torch::nn::SequentialImpl {
     torch::Tensor forward(torch::Tensor x) { return torch::nn::SequentialImpl::forward(x); }
 };
 TORCH_MODULE(VGG);
+

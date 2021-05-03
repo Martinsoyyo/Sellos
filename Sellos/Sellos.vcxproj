@@ -178,8 +178,8 @@
     <ClInclude Include="Trainer.h" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="CMakeLists.txt" />
-    <Text Include="Config.txt" />
+    <Text Include="___CMakeLists.txt" />
+    <Text Include="CONFIG.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
