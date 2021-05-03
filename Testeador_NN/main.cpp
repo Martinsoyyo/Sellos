@@ -116,7 +116,7 @@ int main(int argc, char* argv[]) {
         64,/*IMAGE SIZE*/
         CL,
         LL,
-        0, /* DROP OUT*/
+        0.005, /* DROP OUT*/
         1, /* BATCH NORM*/
         2, /* CHANNEL OUT*/
         1  /* CHANNEL IN*/
@@ -127,13 +127,20 @@ int main(int argc, char* argv[]) {
     torch::load(net, NET_ADDRESS + string(DSEP) + "model.pt");
     cout << net << endl;
 
-  // Testing(net);
+    Testing(net);
 
 
-   cout << "sano." << endl;
-   Test_Image(net, IMAGE_NAME, IMAGE_PATH);
-   cout << endl;
+  // cout << "sano." << endl;
+  // Test_Image(net, IMAGE_NAME, IMAGE_PATH);
+  // cout << endl;
 
+   net->eval();
+   auto A = torch::ones({ 1,1,64,64 });
+   torch::Tensor output = net->forward(A);
+   torch::Tensor pred = output.argmax(1);
+   cout << output << endl;
+   cout << pred << endl;
+ 
   // cout << "roto." << endl;
  //  Test_Image(net, IMAGE_NAME1, IMAGE_PATH1);
    
