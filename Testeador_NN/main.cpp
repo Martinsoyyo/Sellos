@@ -1,5 +1,7 @@
 #include "pch.h"
 #include "Redes.h"
+#include "DenseNet.h"
+#include "Parser.h"
 
 #define DSEP "\\"
 #define NET_ADDRESS "C:\\Users\\mmpel\\source\\repos\\Sellos\\Testeador_NN"
@@ -106,42 +108,66 @@ void Testing(NET& m_net)
 
 
 
+using namespace torch::nn;
+
 int main(int argc, char* argv[]) {
 
     // Tomando de ejemplo que el modelo se llama como a continuacion, la definicion de la red es asi..
     // VGG,B 1,D 0.000000,CL(6 6 6 0 6 6 0 6 0 6 0 ),LL(12 12 )0.999411%.pt
-    vector<size_t> CL = { 8,0,8,0,8,0,8,0 };
-    vector<size_t> LL = { 8,8 };
-    VGG net(
-        64,/*IMAGE SIZE*/
-        CL,
-        LL,
-        0.005, /* DROP OUT*/
-        1, /* BATCH NORM*/
-        2, /* CHANNEL OUT*/
-        1  /* CHANNEL IN*/
-    );
+    
+    
+    // vector<size_t> CL = { 8,0,8,0,8,0,8,0 };
+    // vector<size_t> LL = { 8,8 };
+    // VGG net(
+    //     64,/*IMAGE SIZE*/
+    //     CL,
+    //     LL,
+    //     0.005, /* DROP OUT*/
+    //     1, /* BATCH NORM*/
+    //     2, /* CHANNEL OUT*/
+    //     1  /* CHANNEL IN*/
+    // );
     // Antes de cargar la RED, necesito inicializarla con la estructura que tiene,
     // todavia no se si se puede hacer solo con el archivo .pt
 
-    torch::load(net, NET_ADDRESS + string(DSEP) + "model.pt");
-    cout << net << endl;
+    // torch::load(net, NET_ADDRESS + string(DSEP) + "model.pt");
+    // cout << net << endl;
 
-    Testing(net);
-
+    // Testing(net);
+    
 
   // cout << "sano." << endl;
   // Test_Image(net, IMAGE_NAME, IMAGE_PATH);
   // cout << endl;
 
-   net->eval();
-   auto A = torch::ones({ 1,1,64,64 });
-   torch::Tensor output = net->forward(A);
-   torch::Tensor pred = output.argmax(1);
-   cout << output << endl;
-   cout << pred << endl;
+   //net->eval();
+   //auto A = torch::ones({ 1,1,64,64 });
+   //torch::Tensor output = net->forward(A);
+   //torch::Tensor pred = output.argmax(1);
+   //cout << output << endl;
+   //cout << pred << endl;
  
   // cout << "roto." << endl;
  //  Test_Image(net, IMAGE_NAME1, IMAGE_PATH1);
    
+   
+    Parser parser("[TEST002]");
+    
+    if (parser.m_model_type == "DENSENET") {
+        DenseNet net(
+            parser.m_image_size,
+            parser.m_conv_layer_conf,
+            parser.m_linear_layer_conf,
+            parser.m_input_channel,
+            parser.m_output_channel
+        );
+
+        cout << net << endl;
+
+        auto A = torch::randn({ 1,1,64,64 });
+        torch::Tensor output = net->forward(A);
+        cout << output.sizes() << endl;
+    };
+
+
    };

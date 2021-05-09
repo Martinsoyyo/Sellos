@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "Parser.h"
 #include "Redes.h"
+#include "DenseNet.h"
 
 template<class NET>
 class Trainer {
@@ -88,19 +89,27 @@ void Trainer<NET>::Save_Model_To_CPU(const float& RES) {
     torch::load(m_net, "model.pt");
     m_net->to(torch::kCPU, true);
 
-    string str =
-        m_parser.m_model_type + "," +
-        "B " + (m_parser.m_batch_norm ? "1" : "0") + "," +
-        "D " + to_string(m_parser.m_drop_out) + ",";
+    string str;
+    if (m_parser.m_model_type == "VGG") {
+        str.append(
+            m_parser.m_model_type + "," +
+            "B " + (m_parser.m_batch_norm ? "1" : "0") + "," +
+            "D " + to_string(m_parser.m_drop_out) + ","
+        );
+    }
 
-    str += "CL(";
-    for (auto N : m_parser.m_conv_layer_conf) str += to_string(N) + " ";
-    str += "),LL(";
-    for (auto N : m_parser.m_linear_layer_conf) str += to_string(N) + " ";
-    str += ")" + to_string(RES) + "%.pt";
+    std::string CONV;
+    for (auto STR : m_parser.m_conv_layer_conf) CONV.append(STR + " ");
+    str.append("CL(" + CONV + ")");
+
+    std::string LINEAL;
+    for (auto STR : m_parser.m_linear_layer_conf) LINEAL.append(STR + " ");
+    str.append(", LL(" + LINEAL + ")");
+  
+    str.append(to_string(RES) + "%.pt");
 
     torch::save(m_net, str);
-}
+};
 
 template<class NET>
 float Trainer<NET>::Test(const torch::Tensor& __IMAGE, const torch::Tensor& __TARGET)

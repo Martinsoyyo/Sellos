@@ -30,7 +30,7 @@ auto Dataset::get_image_from_directory(
     size_t count = 0;
 
     std::vector<torch::Tensor> IMG;
-    auto FILES = get_file_or_directory_structure(FILE_ATTRIBUTE_ARCHIVE, PATH, EXT);
+    auto FILES = get_file_or_directory_structure(FILE_ATTRIBUTE_ARCHIVE, PATH , EXT);
     for (const auto& filename : FILES) {
         /*
         //---------------------------------------------------------------------
@@ -50,8 +50,33 @@ auto Dataset::get_image_from_directory(
 
         cv::Mat src = cv::imread(PATH + DSEP + filename);
         cv::cvtColor(src, src, cv::COLOR_BGR2GRAY);
-        cv::resize(src, src, cv::Size(CmdLineOpt::image_size, CmdLineOpt::image_size));
 
+        //Cropping la imagen centrada
+        /*
+        uint32_t X0 = 0.5 * (src.size().width - src.size().height);
+        cv::Mat ROI(src, cv::Rect(X0, 0, src.size().height, src.size().height));
+        ROI.copyTo(src);
+        */
+
+        //Partir la imagen cuadrada en 9.
+        /*
+        uint32_t X = 0, Y = 0;
+        uint32_t DELTA = src.size().height / 3;
+        for (int k = 0; k < 3; k++) 
+        {
+            for (int j = 0; j < 3; j++) 
+            {
+                cv::Mat cropped_src;
+                cv::Mat ROI(src, cv::Rect(X, Y, DELTA, DELTA));
+                cv::imwrite(THUMBNAILS_DIRECTORY + DSEP + std::to_string(count++) + ".jpg", ROI);
+                X += DELTA;
+            }
+            X = 0;
+            Y += DELTA;
+        }
+        */
+
+        cv::resize(src, src, cv::Size(CmdLineOpt::image_size, CmdLineOpt::image_size));
         if (CmdLineOpt::augmentation == true) {
             for (int k = 0; k < 2; k++) {
                 for (int j = 0; j < 2; j++) {
@@ -66,7 +91,7 @@ auto Dataset::get_image_from_directory(
                 }
                 cv::flip(src, src, 1); //flip vertical
             }
-             
+
         }
         else {
             auto m_images = torch::from_blob(src.data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
@@ -82,8 +107,10 @@ auto Dataset::get_image_from_directory(
             std::cout << "";
         };
         */
+    
     }
 
+    //IMG.push_back(torch::randn({ 64,64 }));
     return torch::stack(torch::TensorList(IMG), 0);
 };
 
@@ -117,7 +144,7 @@ Dataset::Dataset(
     const std::string& PREFIX_FN,
     uint32_t IMAGE_SIZE)
 {
-    Dataset::Pair T = proccesing_data(ROOT_FOLDER, "jpg", IMAGE_SIZE);
+    Dataset::Pair T = proccesing_data(ROOT_FOLDER , "jpg", IMAGE_SIZE);
 
     if (CmdLineOpt::verbose) std::cout << "Mezclando y Guardando." << std::endl;
     auto IDX = torch::randperm(T.first.size(0)).to(torch::kLong);

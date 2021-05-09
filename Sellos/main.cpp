@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
 
-    Parser parser(argv[1]);
+   Parser parser(argv[1]);
 
     if (parser.m_model_type == "OTRANET") {
         Net net;
@@ -20,13 +20,20 @@ int main(int argc, char* argv[]) {
             parser.m_output_channel,
             parser.m_input_channel
         );
+
         cout << net << endl;
-
         Trainer<VGG> trainer(net, argv[1]);
-
     }
     else if (parser.m_model_type == "DENSENET") {
+        DenseNet net(
+            parser.m_image_size,
+            parser.m_conv_layer_conf,
+            parser.m_linear_layer_conf,
+            parser.m_input_channel,
+            parser.m_output_channel
+        );
 
+        cout << net << endl;
+        Trainer<DenseNet> trainer(net, argv[1]);
     }
-
 }

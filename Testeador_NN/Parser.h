@@ -6,6 +6,8 @@
 class Parser {
 public:
 	Parser(const string& TEST);
+	void Parse_General_Configuration(string&);
+	void Parse_Net_Configuration(string&);
 
 	ifstream m_file;
 	string m_test_name;
@@ -23,3 +25,4 @@ public:
 	bool m_batch_norm;
 	float m_drop_out;
 };
+
