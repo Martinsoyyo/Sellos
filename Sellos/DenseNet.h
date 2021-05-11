@@ -85,13 +85,10 @@ struct DenseNetImpl : torch::nn::SequentialImpl {
         push_back(Flatten());
         volatile auto lineal_layer = channel * imagesize * imagesize;
         for (auto N = 0; N < LINEAL_LAYER.size(); N++) {
-            try {
-                volatile auto NUM = stoi(LINEAL_LAYER[N]);
-                push_back(Linear(lineal_layer, NUM));
-                push_back(Functional(torch::relu));
-                lineal_layer = NUM;
-            }
-            catch (...) { break; }
+            volatile auto NUM = stoi(LINEAL_LAYER[N]);
+            push_back(Linear(lineal_layer, NUM));
+            push_back(Functional(torch::relu));
+            lineal_layer = NUM;
         };
 
         push_back(Linear(lineal_layer, OUT_CHANNEL));

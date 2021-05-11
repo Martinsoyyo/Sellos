@@ -90,6 +90,7 @@ void Trainer<NET>::Save_Model_To_CPU(const float& RES) {
     m_net->to(torch::kCPU, true);
 
     string str;
+
     if (m_parser.m_model_type == "VGG") {
         str.append(
             m_parser.m_model_type + "," +
@@ -97,6 +98,8 @@ void Trainer<NET>::Save_Model_To_CPU(const float& RES) {
             "D " + to_string(m_parser.m_drop_out) + ","
         );
     }
+    else  if (m_parser.m_model_type == "DENSENET") 
+        str.append(m_parser.m_model_type + ",");
 
     std::string CONV;
     for (auto STR : m_parser.m_conv_layer_conf) CONV.append(STR + " ");
@@ -203,8 +206,8 @@ void Trainer<NET>::Run() {
     Separate_Tensor_For_Train_And_Test();
     Move_Tensor_To_GPU();
 
-    torch::optim::SGD optimizer(m_net->parameters(), torch::optim::SGDOptions(0.1).momentum(0.5));
-    //torch::optim::Adam optimizer(m_net->parameters(), torch::optim::AdamOptions(0.0001).betas(std::make_tuple(0.9, 0.995)).eps(1e-8).weight_decay(0));
+    //torch::optim::SGD optimizer(m_net->parameters(), torch::optim::SGDOptions(0.1).momentum(0.5));
+    torch::optim::Adam optimizer(m_net->parameters(), torch::optim::AdamOptions(0.001).betas(std::make_tuple(0.9, 0.995)).eps(1e-8).weight_decay(0));
 
 
     auto best_result = Test(m_image_test, m_target_test);
