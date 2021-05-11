@@ -5,7 +5,7 @@
 auto Dataset::get_file_or_directory_structure(
     const size_t& TYPE,
     const std::string& PATH,
-    const std::string& EXT = "")
+    const std::string& EXT = "*")
 {
     std::vector<std::string> VEC;
     WIN32_FIND_DATA data;
