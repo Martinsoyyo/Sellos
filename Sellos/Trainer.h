@@ -92,14 +92,14 @@ void Trainer<NET>::Save_Model_To_CPU(const float& RES) {
     string str;
 
     if (m_parser.m_model_type == "VGG") {
-        str.append(
-            m_parser.m_model_type + "," +
+        str.append(to_string(m_parser.m_image_size) +
+            " VGG," +
             "B " + (m_parser.m_batch_norm ? "1" : "0") + "," +
             "D " + to_string(m_parser.m_drop_out) + ","
         );
     }
     else  if (m_parser.m_model_type == "DENSENET") 
-        str.append(m_parser.m_model_type + ",");
+        str.append(to_string(m_parser.m_image_size) + " DNET,");
 
     std::string CONV;
     for (auto STR : m_parser.m_conv_layer_conf) CONV.append(STR + " ");

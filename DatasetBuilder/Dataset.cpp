@@ -53,8 +53,7 @@ auto Dataset::get_image_from_directory(
 
         //Cropping la imagen centrada
         /*
-        uint32_t X0 = 0.5 * (src.size().width - src.size().height);
-        cv::Mat ROI(src, cv::Rect(X0, 0, src.size().height, src.size().height));
+        cv::Mat ROI(src, cv::Rect(150, 200, 300, 300));
         ROI.copyTo(src);
         */
 
@@ -78,7 +77,7 @@ auto Dataset::get_image_from_directory(
 
         cv::resize(src, src, cv::Size(CmdLineOpt::image_size, CmdLineOpt::image_size));
         if (CmdLineOpt::augmentation == true) {
-            for (int k = 0; k < 2; k++) {
+           // for (int k = 0; k < 2; k++) {
                 for (int j = 0; j < 2; j++) {
                     for (auto i = 0; i < 4; i++) {
                         auto m_images = torch::from_blob(src.data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
@@ -90,7 +89,7 @@ auto Dataset::get_image_from_directory(
                     cv::flip(src, src, 0); //flip horizontal
                 }
                 cv::flip(src, src, 1); //flip vertical
-            }
+            //}
 
         }
         else {
@@ -144,7 +143,7 @@ Dataset::Dataset(
     const std::string& PREFIX_FN,
     uint32_t IMAGE_SIZE)
 {
-    Dataset::Pair T = proccesing_data(ROOT_FOLDER , "jpg", IMAGE_SIZE);
+    Dataset::Pair T = proccesing_data(ROOT_FOLDER , "tiff", IMAGE_SIZE);
 
     if (CmdLineOpt::verbose) std::cout << "Mezclando y Guardando." << std::endl;
     auto IDX = torch::randperm(T.first.size(0)).to(torch::kLong);
