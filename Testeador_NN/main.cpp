@@ -10,16 +10,20 @@
 #define BATCH_SIZE 16
 
 #define IMAGE_SIZE 64
-string  IMAGE_PATH = "C:\\Sellos\\Prueba_Superior\\0_sano";
-//string  IMAGE_NAME = "KQHT_C3_pza=100-pos=3-img=0073-01395ms(1).jpg";
-string  IMAGE_NAME = "KQHT_C3_pza=101-pos=2-img=0063-01074ms(1).jpg";
-//string  IMAGE_NAME = "KQHT_C3_pza=101-pos=2-img=0067-01194ms(2).jpg";
+string  IMAGE_PATH = "C:\\0.jpg";
 
+cv::Mat rotate_image(const cv::Mat& SRC, const float& ANGLE) {
+    Mat for_Rotation = getRotationMatrix2D(Point(SRC.cols / 2, SRC.rows / 2), -ANGLE, 1);
+    Mat DST;
 
+    cv::warpAffine(SRC, DST, for_Rotation,
+        cv::Size(SRC.cols, SRC.rows),
+        cv::INTER_LINEAR,
+        cv::BORDER_CONSTANT,
+        cv::Scalar(255, 255, 255));
 
-string  IMAGE_PATH1 = "C:\\Sellos\\Prueba_Superior\\1_roto";
-string  IMAGE_NAME1 = "VBME_C3_pza=002-pos=2-img=0072-01303ms(3).jpg";
-
+    return DST;
+}
 
 template <typename NET>
 size_t Test_Image(NET& m_net, string IMAGE_NAME, string IMAGE_PATH) {
@@ -114,8 +118,8 @@ int main(int argc, char* argv[]) {
 
     // Tomando de ejemplo que el modelo se llama como a continuacion, la definicion de la red es asi..
     // VGG,B 1,D 0.000000,CL(6 6 6 0 6 6 0 6 0 6 0 ),LL(12 12 )0.999411%.pt
-    
-    
+
+
     // vector<size_t> CL = { 8,0,8,0,8,0,8,0 };
     // vector<size_t> LL = { 8,8 };
     // VGG net(
@@ -134,7 +138,7 @@ int main(int argc, char* argv[]) {
     // cout << net << endl;
 
     // Testing(net);
-    
+
 
   // cout << "sano." << endl;
   // Test_Image(net, IMAGE_NAME, IMAGE_PATH);
@@ -146,13 +150,13 @@ int main(int argc, char* argv[]) {
    //torch::Tensor pred = output.argmax(1);
    //cout << output << endl;
    //cout << pred << endl;
- 
+
   // cout << "roto." << endl;
  //  Test_Image(net, IMAGE_NAME1, IMAGE_PATH1);
-   
-   
-    Parser parser("[TEST002]");
-    
+
+
+  /*  Parser parser("[TEST002]");
+
     if (parser.m_model_type == "DENSENET") {
         DenseNet net(
             parser.m_image_size,
@@ -169,5 +173,17 @@ int main(int argc, char* argv[]) {
         cout << output.sizes() << endl;
     };
 
+    */
+
+
+    Mat src = cv::imread(IMAGE_PATH);
+    Mat dst = rotate_image(src, 55.0f);
+
+    imshow("Antes", src);
+    imshow("Despues", dst);
+    waitKey(0);
+
+    //cout << src_tensor.to(at:
 
    };
+

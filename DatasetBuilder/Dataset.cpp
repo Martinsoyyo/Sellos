@@ -2,6 +2,19 @@
 #include "Dataset.h"
 #include "cmdlineopt.h"
 
+auto Dataset::rotate_image(const cv::Mat& SRC, const float& ANGLE) {
+    cv::Mat for_Rotation = cv::getRotationMatrix2D(cv::Point(SRC.cols / 2, SRC.rows / 2), -ANGLE, 1);
+    cv::Mat DST;
+
+    cv::warpAffine(SRC, DST, for_Rotation,
+        cv::Size(SRC.cols, SRC.rows),
+        cv::INTER_LINEAR,
+        cv::BORDER_CONSTANT,
+        cv::Scalar(255, 255, 255));
+
+    return DST;
+}
+
 auto Dataset::get_file_or_directory_structure(
     const size_t& TYPE,
     const std::string& PATH,
@@ -74,22 +87,22 @@ auto Dataset::get_image_from_directory(
             Y += DELTA;
         }
         */
-
+        auto N = 8;
         cv::resize(src, src, cv::Size(CmdLineOpt::image_size, CmdLineOpt::image_size));
         if (CmdLineOpt::augmentation == true) {
-           // for (int k = 0; k < 2; k++) {
-                for (int j = 0; j < 2; j++) {
-                    for (auto i = 0; i < 4; i++) {
-                        auto m_images = torch::from_blob(src.data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
-                        cv::imwrite(THUMBNAILS_DIRECTORY + DSEP + std::to_string(count++) + ".jpg", src); //graba jpgs al disco
-                        IMG.push_back(m_images.clone());
 
-                        cv::rotate(src, src, 0);
-                    }
-                    cv::flip(src, src, 0); //flip horizontal
+            for (int j = 0; j < 2; j++) {
+                float angle = 0;
+                float delta_angle = 360.0f / N;
+                for (auto i = 0; i < N; i++) {
+                    auto dst = rotate_image(src, angle);
+                    auto m_images = torch::from_blob(dst.data, { CmdLineOpt::image_size, CmdLineOpt::image_size }, torch::kByte);
+                    cv::imwrite(THUMBNAILS_DIRECTORY + DSEP + std::to_string(count++) + ".jpg", dst); //graba jpgs al disco
+                    IMG.push_back(m_images.clone());
+                    angle += delta_angle;
                 }
-                cv::flip(src, src, 1); //flip vertical
-            //}
+                cv::flip(src, src, 0); //flip vertical
+            }
 
         }
         else {
@@ -129,7 +142,7 @@ Dataset::Pair Dataset::proccesing_data(
         if (dirname != "." && dirname != "..") {
             std::string STR = PATH + DSEP + dirname;
             if (CmdLineOpt::verbose) std::cout << STR << std::endl;
-            IMG.push_back(get_image_from_directory(STR, "jpg"));
+            IMG.push_back(get_image_from_directory(STR, EXT));
             TRG.push_back(torch::full({ IMG[count].size(0) }, count).to(at::kByte));
             count++;
         }
@@ -143,7 +156,7 @@ Dataset::Dataset(
     const std::string& PREFIX_FN,
     uint32_t IMAGE_SIZE)
 {
-    Dataset::Pair T = proccesing_data(ROOT_FOLDER , "tiff", IMAGE_SIZE);
+    Dataset::Pair T = proccesing_data(ROOT_FOLDER , "jpg", IMAGE_SIZE);
 
     if (CmdLineOpt::verbose) std::cout << "Mezclando y Guardando." << std::endl;
     auto IDX = torch::randperm(T.first.size(0)).to(torch::kLong);
