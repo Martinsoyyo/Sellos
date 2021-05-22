@@ -70,8 +70,8 @@ struct FEATURESImpl : torch::nn::SequentialImpl {
         for (auto N : CONV_LAYER) {
             auto NUM = stoi(N);
             if (NUM == 0)
-                //push_back(Functional(AvgPool2d(AvgPool2dOptions({ 2, 2 }).stride({ 2, 2 }))));
-                push_back(MaxPool2d(2));
+                push_back(Functional(AvgPool2d(AvgPool2dOptions({ 2, 2 }).stride({ 2, 2 }))));
+                //push_back(MaxPool2d(2));
             else
             {
                 push_back(CV_DROP_BN_RELU(channel, NUM, FILTER_SIZE, DROP_RATE, BATCHNORM));
